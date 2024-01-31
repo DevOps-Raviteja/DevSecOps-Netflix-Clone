@@ -42,7 +42,7 @@ pipeline {
         }
         stage ('Vulnerabilities-Check'){
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'dp-check'
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'Owasp-Check'
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
             }
         }
