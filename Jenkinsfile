@@ -17,7 +17,7 @@ pipeline {
         }
         stage ('Git-CheckOut'){
             steps {
-                git branch: 'master', url: 'https://github.com/Ravitejadarla5/DevSecOps-Netflix-Clone.git'
+                git branch: 'master', url: 'https://github.com/DevOps-Raviteja/DevSecOps-Netflix-Clone.git'
             }
         }
         stage ('Static-Code-Analysis'){
