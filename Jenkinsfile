@@ -48,7 +48,7 @@ pipeline {
         }
         stage ('File-System-Scan'){
             steps{
-                sh 'trivy fs .'
+                sh 'trivy fs . > trivyFileSystemScanReport.txt'
             }
         }
         stage ('Docker-Build') {
@@ -62,7 +62,7 @@ pipeline {
         }
         stage ('Docker-Image-Scan'){
             steps {
-                sh "trivy image netflix-app:${IMAGE_TAG}"
+                sh "trivy image netflix-app:${IMAGE_TAG} > trivyImageScanReport.txt"
             }
         }
         stage ('Docker-Push'){
@@ -79,6 +79,27 @@ pipeline {
             steps{
                 sh "docker image rmi ravitejadarla5/netflix-app:latest"
             }
+        }
+        stage ('Deploy-Kubernets'){
+            steps {
+                script {
+                    dir ('Kubernetes'){
+                        withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8S', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                            sh 'kubectl apply -f deployment.yml'
+                            sh 'kubectl apply -f service.yml'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            emailext attachLog: true, 
+            subject: " '${currentBuild.result}'",
+            body: "Project: ${env.JOB_NAME} <br/>" + "Build Number: ${env.BUILD_NUMBER}<br/>" + "URL: ${env.BUILD_URL}<br/>",
+            to: 'ravitejadarla5@gmail.com'
+            attachmentsPattern: 'trivyFileSystemScanReport.txt, trivyImageScanReport.txt' 
         }
     }
 }
